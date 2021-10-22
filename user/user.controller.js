@@ -1,6 +1,7 @@
 const UserModel = require('./user.model');
 const bcrypt = require('bcrypt');
-
+const AuthService = require('../auth.services');
+const Userservice = require('./user.service');
 // Register User
 exports.register = (async (req,res) =>{
 
@@ -29,19 +30,73 @@ exports.register = (async (req,res) =>{
 });
 
 //Login User
-exports.login = (async (req,res) =>{
-  try {
-    const user = await UserModel.findOne({ email: req.body.email });
-    !user && res.status(404).json("user not found");
+// exports.login = (async (req,res) =>{
+//   try {
+//     const user = await UserModel.findOne({ email: req.body.email });
+//     !user && res.status(404).json("user not found");
 
-    const validPassword = await bcrypt.compare(req.body.password, user.password)
-    !validPassword && res.status(400).json("wrong password")
+   
 
-    res.status(200).send("Login Successful")
-  } catch (err) {
-    res.status(500).json(err)
-  }
-});
+//     const validPassword = await bcrypt.compare(req.body.password, user.password)
+//     !validPassword && res.status(400).json("wrong password")
+
+//     res.status(200).send("Login Successful")
+//   } catch (err) {
+//     res.status(500).json(err)
+//   }
+// });
+
+//login user
+exports.login = function(req,res){
+  console.log("data received",req.body)
+  console.log("email",req.body.email)
+  
+    var query ={
+            email:req.body.email,
+            password:req.body.password,
+      
+        }
+        //find user
+      Userservice.findUser(req.body).then(function(result){
+      if(result){
+        console.log("found user",result);
+        var payload = {
+          email:result.email,
+        }
+        console.log("user password",result.password)
+        console.log("req body password",req.body.password)
+        //validate password
+        const validPassword =  bcrypt.compare(req.body.password, result.password)
+        if(!validPassword){
+            res.send("wrong password")
+          }else{
+            console.log("password is validated")
+          }
+          //creating token
+        AuthService.createToken(payload, function(error, token){
+          if(error){
+            res.send("token not generated")
+          }
+          else{
+            res.set("authtoken",token)
+
+            res.send({
+                message:"Login Successful"
+            })
+          }
+        });
+      }else{
+          res.send({
+            message:"Invalid Credentials"
+          })
+        }
+    },function(error){
+      res.status(500).json("internal server error")
+    });
+  
+
+}
+
 
 //Update User
 exports.update = (async (req,res) => {
