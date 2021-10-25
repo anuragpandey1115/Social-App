@@ -5,6 +5,10 @@ const PostSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
+      fileId:{
+        type:String,
+        default: [],
+      },
       desc: {
         type: String,
         max: 500,

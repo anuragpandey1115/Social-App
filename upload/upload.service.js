@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
       },
     });
 
-    const maxSize = 25 * 1024 * 1024; // for 5MB
+    const maxSize = 10 * 1024 * 1024; // for 10MB
     const filefilter = (req, file, cb) => {
         const fileSize = parseInt(req.headers['content-length']);
         if ((file.mimetype === 'image/png' || file.mimetype === 'image/jpg' 
