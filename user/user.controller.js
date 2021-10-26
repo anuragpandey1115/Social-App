@@ -21,9 +21,10 @@ exports.register = (async (req,res) =>{
     console.log("newuser",newUser);
         //save user and respond
         const user = await newUser.save();
-        
-        console.log("saving")
-        res.status(200).json(user);
+        !user && res.status(404).json("Internal Server Error");
+        // console.log("saving")
+        const {password, __v,updatedAt, ...other} = user._doc
+        res.status(200).json(other);
       } catch (err) {
         console.log("saving error",err)
         res.status(500).json(err)
@@ -49,30 +50,29 @@ exports.register = (async (req,res) =>{
 
 //login user
 exports.login = function(req,res){
-  console.log("data received",req.body)
-  console.log("email",req.body.email)
-  
-    var query ={
-            email:req.body.email,
-            password:req.body.password,
+    // var query ={
+    //         email:req.body.email,
+    //         password:req.body.password,
       
-        }
+    //     }
         //find user
       Userservice.findUser(req.body).then(function(result){
       if(result){
-        console.log("found user",result);
+        // console.log("found user",result);
         var payload = {
-          email:result.email,
+          email:result.email
         }
-        console.log("user password",result.password)
-        console.log("req body password",req.body.password)
+        // console.log("user password",result.password)
+        // console.log("req body password",req.body.password)
         //validate password
         const validPassword =  bcrypt.compare(req.body.password, result.password)
-        if(!validPassword){
-            res.send("wrong password")
-          }else{
-            console.log("password is validated")
-          }
+        !validPassword && res.status(404).json("wrong password");
+        // if(!validPassword){
+        //     res.send("wrong password")
+        //   }
+          // else{
+          //   console.log("password is validated")
+          // }
           //creating token
         AuthService.createToken(payload, function(error, token){
           if(error){
@@ -81,9 +81,7 @@ exports.login = function(req,res){
           else{
             res.set("authtoken",token)
 
-            res.send({
-                message:"Login Successful"
-            })
+            res.status(200).json("Login Successful")
           }
         });
       }else{
@@ -91,7 +89,7 @@ exports.login = function(req,res){
             message:"Invalid Credentials"
           })
         }
-    },function(error){
+    },function(){
       res.status(500).json("internal server error")
     });
   
@@ -101,9 +99,9 @@ exports.login = function(req,res){
 
 //Update User
 exports.update = (async (req,res) => {
-  console.log(req.body);
-  console.log(req.body.userId);
-  console.log(req.params.id);
+  // console.log(req.body);
+  // console.log(req.body.userId);
+  // console.log(req.params.id);
   if(req.body.userId === req.params.id || req.body.isAdmin){
     if(req.body.password){
       try{
@@ -117,7 +115,8 @@ exports.update = (async (req,res) => {
       const user = await UserModel.findByIdAndUpdate(req.params.id,{
         $set: req.body,
       });
-      res.status(200).json(user);
+      const {password, __v,updatedAt, ...other} = user._doc
+      res.status(200).json(other);
     } catch(err){
       return res.status(500).json(err);
     }
@@ -128,9 +127,9 @@ exports.update = (async (req,res) => {
 
 // Delete User
 exports.delete = (async (req,res) => {
-  console.log(req.body);
-  console.log(req.body.userId);
-  console.log(req.params.id);
+  // console.log(req.body);
+  // console.log(req.body.userId);
+  // console.log(req.params.id);
   if(req.body.userId === req.params.id || req.body.isAdmin){
     try{
       const user = await UserModel.findByIdAndDelete(req.params.id);
@@ -147,6 +146,7 @@ exports.delete = (async (req,res) => {
 exports.display = (async (req,res) =>{
   try{
 const user = await UserModel.findById(req.params.id);
+!user && res.status(404).json("user not found");
 const {password, updatedAt,__v, ...other} = user._doc
 res.status(200).json(other);
   }catch{
@@ -160,11 +160,13 @@ exports.follow = (async (req,res) =>{
   if(req.body.userId !== req.params.id){
     try{
       const user = await UserModel.findById(req.params.id);
+      !user && res.status(404).json("user not found");
       const currentUser = await UserModel.findById(req.body.userId);
+      !currentUser && res.status(404).json("user not found");
       if(!user.followers.includes(req.body.userId)){
         await user.updateOne({ $push:{ followers: req.body.userId}});
         await currentUser.updateOne({ $push:{ followings: req.params.id}});
-        res.status(200).json("user has beemn followed");
+        res.status(200).json("user has been followed");
       }else {
         res.status(403).json("you already followed this user")
       }
@@ -181,11 +183,13 @@ exports.unfollow = (async (req,res) =>{
   if(req.body.userId !== req.params.id){
     try{
       const user = await UserModel.findById(req.params.id);
+      !user && res.status(404).json("user not found");
       const currentUser = await UserModel.findById(req.body.userId);
+      !currentUser && res.status(404).json("user not found");
       if(user.followers.includes(req.body.userId)){
         await user.updateOne({ $pull:{ followers: req.body.userId}});
         await currentUser.updateOne({ $pull:{ followings: req.params.id}});
-        res.status(200).json("user has beemn unfollowed");
+        res.status(200).json("user has been unfollowed");
       }else {
         res.status(403).json("you already unfollowed this user")
       }

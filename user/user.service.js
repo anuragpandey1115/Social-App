@@ -6,9 +6,9 @@ exports.findUser = function(data){
     }
 
     return new Promise(function(resolve,reject){
-        console.log("i have to do some work", data)
+        // console.log("i have to do some work", data)
         UserModel.findOne(query).then(function(result){
-            console.log("result os find user", result)
+            // console.log("result os find user", result)
             resolve(result)
         },function(error){
             reject(error)

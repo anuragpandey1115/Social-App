@@ -26,14 +26,21 @@ const storage = multer.diskStorage({
         const fileSize = parseInt(req.headers['content-length']);
         if ((file.mimetype === 'image/png' || file.mimetype === 'image/jpg' 
             || file.mimetype === 'image/jpeg')&& (fileSize <= maxSize)){
-                cb(null, true);
+                
+                    cb(null, true);
+            
+                
             }else if(file.mimetype === 'video/mp4' && fileSize <= maxSize) {
-
-                cb(null, true);
+               
+                    cb(null, true); 
+                
+               
                 
                 }
             else {
                 cb(null, false);
+                
+                throw new Error("limit exceded")
             }
     }
 

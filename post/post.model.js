@@ -7,14 +7,13 @@ const PostSchema = new mongoose.Schema({
       },
       fileId:{
         type:String,
-        default: [],
       },
+    files:{
+      type:Array
+    },
       desc: {
         type: String,
         max: 500,
-      },
-      img: {
-        type: String,
       },
       likes: {
         type: Array,
