@@ -1,24 +1,17 @@
 const userModel = require('../user/user.model');
 const PostModel = require('./post.model');
 const UploadModel = require('../upload/upload.model');
-const { query } = require('express');
 
 //create post
 exports.create = (async (req,res) =>{
     const query = req.body.fileId
-    console.log("query is ",query)
     const file = await UploadModel.findById(query);
-    !file && res.status(404).json("post not found");
+    !file && res.status(404).json("file not found");
 
     dataToAdd = file.files
-    console.log("uploading files",file)
-    console.log("datato add files",dataToAdd)
     var body = req.body
     body.files = dataToAdd
     const newPost = new PostModel(body)
-    // console.log("newPost",newPost)
-    // await newPost.updateOne({$insert:dataToAdd})
-
     try{
         const savedPost = await newPost.save();
         res.status(200).json(savedPost);
@@ -87,7 +80,6 @@ exports.like = (async(req,res)=>{
 exports.display = (async(req,res)=>{
     try{
         const post = await PostModel.findById(req.params.id);
-        // await post.populate('fileId').execPopulate()
         res.status(200).json(post);
     }catch(err){
         res.status(500).json(err);

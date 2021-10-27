@@ -1,22 +1,13 @@
 const express = require('express');
 const app =express();
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const helmet = require('helmet');
 const morgan = require('morgan');
 const routes = require('./routes')
 const Port = process.env.PORT || 7000
 
-const dburl = "mongodb://localhost:27017/social"
+const dburl = "mongodb+srv://social-media:Password123@cluster0.d5zqv.mongodb.net/social?retryWrites=true&w=majority"
 
-dotenv.config();
-// Database Connection
-
-// mongoose.connect(process.env.MONGO_URL, {userNewUrlParser: true, 
-//     useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true },() => {
-//     console.log("connected to MongoDb cloud");
-// });
-
+//Database  connection
 mongoose.connect(dburl).then(function(){
     console.log("Connetcted to database")
 
@@ -30,7 +21,6 @@ mongoose.connect(dburl).then(function(){
 
 // middleware
 app.use(express.json());
-app.use(helmet());
 app.use(morgan("common"));
 app.use(routes)
 
@@ -41,7 +31,3 @@ app.get("/",(req,res) => {
 
 
 
-//server connection
-// app.listen(Port, () => {
-//     console.log("server is running on :",Port);
-// });

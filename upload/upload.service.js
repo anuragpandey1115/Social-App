@@ -7,7 +7,6 @@ const path = require("path");
 const storage = multer.diskStorage({
    
     destination: function(req, file, cb){
-        console.log("in vedia controller")
         if(!fs.existsSync("./uploads")){
             fs.mkdirSync("./uploads")
         }

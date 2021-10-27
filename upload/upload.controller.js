@@ -8,7 +8,6 @@ const FileUpload = async (req, res, next) => {
                 fileName: element.originalname,
                 filePath: element.path,
                 fileType: element.mimetype,
-                // fileSize: fileSizeFormatter(element.size, 2)
             }
             filesArray.push(file);
         });
@@ -17,10 +16,7 @@ const FileUpload = async (req, res, next) => {
             files: filesArray 
         });
         await multipleFiles.save();
-        // const files = multipleFiles
-        // const {fileName, fileType, ...other} = user._doc
         res.status(201).json(multipleFiles)
-        // .send('Files Uploaded Successfully');
     }catch(error) {
         res.status(400).send("error in uploading",error);
     }

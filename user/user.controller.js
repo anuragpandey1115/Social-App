@@ -31,48 +31,17 @@ exports.register = (async (req,res) =>{
       }
 });
 
-//Login User
-// exports.login = (async (req,res) =>{
-//   try {
-//     const user = await UserModel.findOne({ email: req.body.email });
-//     !user && res.status(404).json("user not found");
-
-   
-
-//     const validPassword = await bcrypt.compare(req.body.password, user.password)
-//     !validPassword && res.status(400).json("wrong password")
-
-//     res.status(200).send("Login Successful")
-//   } catch (err) {
-//     res.status(500).json(err)
-//   }
-// });
-
 //login user
 exports.login = function(req,res){
-    // var query ={
-    //         email:req.body.email,
-    //         password:req.body.password,
-      
-    //     }
         //find user
       Userservice.findUser(req.body).then(function(result){
       if(result){
-        // console.log("found user",result);
         var payload = {
           email:result.email
         }
-        // console.log("user password",result.password)
-        // console.log("req body password",req.body.password)
         //validate password
         const validPassword =  bcrypt.compare(req.body.password, result.password)
         !validPassword && res.status(404).json("wrong password");
-        // if(!validPassword){
-        //     res.send("wrong password")
-        //   }
-          // else{
-          //   console.log("password is validated")
-          // }
           //creating token
         AuthService.createToken(payload, function(error, token){
           if(error){
@@ -99,9 +68,6 @@ exports.login = function(req,res){
 
 //Update User
 exports.update = (async (req,res) => {
-  // console.log(req.body);
-  // console.log(req.body.userId);
-  // console.log(req.params.id);
   if(req.body.userId === req.params.id || req.body.isAdmin){
     if(req.body.password){
       try{
@@ -127,9 +93,6 @@ exports.update = (async (req,res) => {
 
 // Delete User
 exports.delete = (async (req,res) => {
-  // console.log(req.body);
-  // console.log(req.body.userId);
-  // console.log(req.params.id);
   if(req.body.userId === req.params.id || req.body.isAdmin){
     try{
       const user = await UserModel.findByIdAndDelete(req.params.id);
