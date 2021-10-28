@@ -2,27 +2,25 @@ const UserModel = require('./user.model');
 const bcrypt = require('bcrypt');
 const AuthService = require('../auth.services');
 const Userservice = require('./user.service');
+
+
 // Register User
 exports.register = (async (req,res) =>{
-
- 
     try {
         // generate new password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
     
         // create new user
-        console.log("in register")
         const newUser = new UserModel({
           username: req.body.username,
           email: req.body.email,
           password: hashedPassword,
         });
-    console.log("newuser",newUser);
+  
         //save user and respond
         const user = await newUser.save();
         !user && res.status(404).json("Internal Server Error");
-        // console.log("saving")
         const {password, __v,updatedAt, ...other} = user._doc
         res.status(200).json(other);
       } catch (err) {
